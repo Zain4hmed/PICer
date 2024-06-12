@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
         // Append a timestamp as a query parameter to the image URL
         const timestamp = new Date().getTime();
-        img.src = `upload/image${i}.jpg?_=${timestamp}`;
+        img.src = `/upload/image${i}.jpg?_=${timestamp}`;
 
         img.alt = `Image ${i}`;
 
