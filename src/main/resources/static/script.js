@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const gridContainer = document.getElementById("grid-container");
 
     // Replace with the actual number of images you have
-    const totalImages = 18;
+    const totalImages = 100;
 
     for (let i = 1; i <= totalImages; i++) {
         const div = document.createElement("div");
