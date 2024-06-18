@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +22,9 @@ public class FileUploadController {
 
     @Value("${upload.dir}")
     private String uploadDir;
+
+    // Assuming your application is running from the root of your project
+    private static final String UPLOAD_DIR = Paths.get("src", "main", "upload").toAbsolutePath().toString();
 
     @PostMapping("/upload")
     public ResponseEntity<String> uploadFile(@RequestBody FileUploadRequest fileUploadRequest) {
@@ -56,6 +61,35 @@ public class FileUploadController {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload the file: " + fileName);
         }
+    }
+
+    @DeleteMapping("/wipeout")
+    public ResponseEntity<String> deleteImages(){
+        File directory = new File(UPLOAD_DIR);
+
+        if(!directory.exists() || !directory.isDirectory()){
+            return new ResponseEntity<>("Directory does not exist or is not a directory", HttpStatus.BAD_REQUEST);
+        }
+
+        File[] files = directory.listFiles();
+        if(files == null || files.length == 0){
+            return new ResponseEntity<>("No files to delete",HttpStatus.OK);
+        }
+
+        for(File file : files){
+            if(file.isFile()){
+                try {
+                    boolean deleted = file.delete();
+                    if(!deleted){
+                        return new ResponseEntity<>("Failed to delete file : "+file.getName(),HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
+                }catch (SecurityException e){
+                    return new ResponseEntity<>("Permission denied : "+e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        }
+
+        return new ResponseEntity<>("All files deleted successfully",HttpStatus.OK);
     }
 
     public static class FileUploadRequest {
