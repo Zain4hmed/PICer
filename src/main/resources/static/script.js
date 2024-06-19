@@ -1,27 +1,29 @@
 document.addEventListener("DOMContentLoaded", function() {
-    const gridContainer = document.getElementById("grid-container");
+    fetch('/api/files/imageslist')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const gridContainer = document.getElementById("grid-container");
 
-    // Replace with the actual number of images you have
-    const totalImages = 100;
+            data.forEach(imageName => {
+                const div = document.createElement("div");
+                div.classList.add("grid-item");
 
-    for (let i = 1; i <= totalImages; i++) {
-        const div = document.createElement("div");
-        div.classList.add("grid-item");
+                const img = document.createElement("img");
 
-        const img = document.createElement("img");
+                // Append a timestamp as a query parameter to the image URL
+                const timestamp = new Date().getTime();
+                img.src = `/upload/${imageName}`;
+                img.alt = imageName;
 
-        // Append a timestamp as a query parameter to the image URL
-        const timestamp = new Date().getTime();
-        img.src = `/upload/image${i}.jpg?_=${timestamp}`;
+                // Add event listener to toggle selection on click
+                img.addEventListener("click", function() {
+                    this.classList.toggle("selected");
+                });
 
-        img.alt = `Image ${i}`;
-
-        // Add event listener to toggle selection on click
-        img.addEventListener("click", function() {
-            this.classList.toggle("selected");
-        });
-
-        div.appendChild(img);
-        gridContainer.appendChild(div);
-    }
+                div.appendChild(img);
+                gridContainer.appendChild(div);
+            });
+        })
+        .catch(error => console.error('Error fetching image names:', error));
 });

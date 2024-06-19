@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +13,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/files")
@@ -22,6 +23,9 @@ public class FileUploadController {
 
     @Value("${upload.dir}")
     private String uploadDir;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     // Assuming your application is running from the root of your project
     private static final String UPLOAD_DIR = Paths.get("src", "main", "upload").toAbsolutePath().toString();
@@ -61,6 +65,17 @@ public class FileUploadController {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload the file: " + fileName);
         }
+    }
+
+    @GetMapping("/imageslist")
+    public List<String> getImageNames() throws IOException {
+        Path path = Paths.get(uploadPath);
+        return Files.list(path)
+                .filter(Files::isRegularFile)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .filter(name -> name.endsWith(".jpg") || name.endsWith(".jpeg"))
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/wipeout")
