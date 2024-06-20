@@ -10,7 +10,10 @@ document.addEventListener("DOMContentLoaded", function() {
             .then(data => {
                 gridContainer.innerHTML = ''; // Clear existing images
 
-                data.forEach(imageName => {
+                // Reverse the data array to load images from the top
+                const reversedData = data.reverse();
+
+                reversedData.forEach(imageName => {
                     const div = document.createElement("div");
                     div.classList.add("grid-item");
 
