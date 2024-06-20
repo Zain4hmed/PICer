@@ -2,11 +2,11 @@ body {
     font-family: Arial, sans-serif;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align items to the start of the flex container */
+    align-items: flex-start;
     height: 100vh;
     margin: 0;
     background-color: #f0f0f0;
-    padding-top: 50px; /* Add padding to create space at the top */
+    padding-top: 50px;
 }
 
 .grid-container {
@@ -21,23 +21,21 @@ body {
 
 .grid-item {
     overflow: hidden;
-    position: relative; /* Ensure relative positioning for the text */
+    position: relative;
 }
 
 .grid-item img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Ensures the image covers the entire grid item */
+    object-fit: cover;
     display: block;
-    transition: filter 0.3s ease; /* Smooth transition for selection effect */
+    transition: filter 0.3s ease;
 }
 
-/* Selected state for images */
 .grid-item img.selected {
-    filter: brightness(20%); /* Darkens the image when selected */
+    filter: brightness(20%);
 }
 
-/* Text display */
 .grid-item img.selected::after {
     content: "checked";
     position: absolute;
@@ -46,4 +44,21 @@ body {
     transform: translate(-50%, -50%);
     color: white;
     font-weight: bold;
+}
+
+.float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    background-color: #0C9;
+    color: #FFF;
+    border-radius: 50px;
+    text-align: center;
+    box-shadow: 2px 2px 3px #999;
+}
+
+.float i {
+    margin-top: 22px;
 }

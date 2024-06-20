@@ -56,11 +56,11 @@ public class FileUploadController {
             Files.write(filePath, decodedBytes);
 
             // Set cache control headers to disable caching
-            CacheControl cacheControl = CacheControl.noCache().mustRevalidate()
-                    .sMaxAge(0, TimeUnit.SECONDS).cachePrivate();
+//            CacheControl cacheControl = CacheControl.noCache().mustRevalidate()
+//                    .sMaxAge(0, TimeUnit.SECONDS).cachePrivate();
 
             return ResponseEntity.ok()
-                    .cacheControl(cacheControl)
+//                    .cacheControl(cacheControl)
                     .body("File uploaded successfully: " + fileName);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload the file: " + fileName);
@@ -77,6 +77,21 @@ public class FileUploadController {
                 .filter(name -> name.endsWith(".jpg") || name.endsWith(".jpeg"))
                 .collect(Collectors.toList());
     }
+
+    @DeleteMapping("/deleteSelected")
+    public ResponseEntity<String> deleteSelectedImages(@RequestBody List<String> imageNames) {
+        try {
+            for (String imageName : imageNames) {
+                Path imagePath = Paths.get(UPLOAD_DIR, imageName);
+                Files.deleteIfExists(imagePath);
+            }
+            return ResponseEntity.ok("Images deleted successfully");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to delete images: " + e.getMessage());
+        }
+    }
+
 
     @DeleteMapping("/wipeout")
     public ResponseEntity<String> deleteImages(){
@@ -127,4 +142,5 @@ public class FileUploadController {
             this.fileContent = fileContent;
         }
     }
+
 }

@@ -22,11 +22,11 @@ public class ImageController {
         byte[] imageBytes = Files.readAllBytes(imagePath);
 
         // Set cache control headers to prevent caching
-        CacheControl cacheControl = CacheControl.noCache().noStore().mustRevalidate().maxAge(0, TimeUnit.SECONDS);
+//        CacheControl cacheControl = CacheControl.noCache().noStore().mustRevalidate().maxAge(0, TimeUnit.SECONDS);
 
         // Return the image with cache control headers
         return ResponseEntity.ok()
-                .cacheControl(cacheControl)
+//                .cacheControl(cacheControl)
                 .body(imageBytes);
     }
 }
