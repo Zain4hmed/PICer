@@ -21,6 +21,7 @@ body {
 .grid-item {
     break-inside: avoid;
     margin-bottom: 8px;
+    position: relative;
 }
 
 .grid-item img {
@@ -31,6 +32,82 @@ body {
 
 .grid-item img.selected {
     filter: brightness(20%);
+}
+
+/* Fullscreen icon */
+.grid-item .fullscreen-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    padding: 8px;
+    cursor: pointer;
+}
+
+/* Lightbox */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.lightbox-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+
+.lightbox .close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.lightbox .close:hover,
+.lightbox .close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    width: auto;
+    padding: 16px;
+    margin-top: -50px;
+    color: white;
+    font-weight: bold;
+    font-size: 20px;
+    transition: 0.6s ease;
+    user-select: none;
+}
+
+.prev {
+    left: 0;
+}
+
+.next {
+    right: 0;
+}
+
+.prev:hover, .next:hover {
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 /* Responsive layout */
@@ -61,4 +138,54 @@ body {
 
 .float i {
     margin-top: 22px;
+}
+
+/* Loading Overlay */
+#loading-overlay {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loader {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.loader:before, .loader:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 35px;
+    width: 10px;
+    height: 35px;
+    background: #3498db;
+    animation: loader 1.2s infinite ease-in-out;
+}
+
+.loader:after {
+    left: 5px;
+    animation-delay: -0.6s;
+}
+
+@keyframes loader {
+    0%, 100% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1);
+    }
+}
+
+.grid-container.loading {
+    visibility: hidden; /* Hide grid items during loading */
 }
