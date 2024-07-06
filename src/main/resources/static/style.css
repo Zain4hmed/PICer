@@ -22,29 +22,39 @@ body {
     break-inside: avoid;
     margin-bottom: 8px;
     position: relative;
+    overflow: hidden; /* Ensure overflow is hidden for the blur effect */
 }
 
 .grid-item img {
     width: 100%;
     display: block;
-    transition: filter 0.3s ease;
+    transition: filter 0.5s ease, opacity 0.5s ease;
+    filter: blur(20px); /* Initial blur */
+    opacity: 0.5;
 }
 
-.grid-item img.selected {
-    filter: brightness(20%);
+.grid-item img.loaded {
+    filter: none; /* Remove blur when image is loaded */
+    opacity: 1;
 }
 
 /* Fullscreen icon */
 .grid-item .fullscreen-icon {
     position: absolute;
-    top: 8px;
+    top: 9px;
     right: 8px;
     background: rgba(0, 0, 0, 0.5);
     color: white;
-    border-radius: 50%;
-    padding: 8px;
+    width: 22px; /* Set the width and height to be equal */
+    height: 22px;
+    border-radius: 5px; /* Adjust border-radius as needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
 }
+
+
 
 /* Lightbox */
 .lightbox {
@@ -125,6 +135,7 @@ body {
 
 .float {
     position: fixed;
+     z-index: 999;
     width: 60px;
     height: 60px;
     bottom: 40px;
@@ -138,54 +149,4 @@ body {
 
 .float i {
     margin-top: 22px;
-}
-
-/* Loading Overlay */
-#loading-overlay {
-    display: none;
-    position: fixed;
-    z-index: 999;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.loader {
-    position: relative;
-    width: 80px;
-    height: 80px;
-}
-
-.loader:before, .loader:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 35px;
-    width: 10px;
-    height: 35px;
-    background: #3498db;
-    animation: loader 1.2s infinite ease-in-out;
-}
-
-.loader:after {
-    left: 5px;
-    animation-delay: -0.6s;
-}
-
-@keyframes loader {
-    0%, 100% {
-        transform: scale(0);
-    }
-    50% {
-        transform: scale(1);
-    }
-}
-
-.grid-container.loading {
-    visibility: hidden; /* Hide grid items during loading */
 }

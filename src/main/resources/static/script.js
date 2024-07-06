@@ -7,25 +7,11 @@ document.addEventListener("DOMContentLoaded", function() {
     const closeBtn = document.querySelector(".close");
     const prevBtn = document.querySelector(".prev");
     const nextBtn = document.querySelector(".next");
-    const loadingOverlay = document.getElementById("loading-overlay");
     let currentImageIndex = -1;
     let images = [];
 
-    // Function to show loading overlay
-    function showLoadingOverlay() {
-        loadingOverlay.style.display = "flex";
-    }
-
-    // Function to hide loading overlay
-    function hideLoadingOverlay() {
-        loadingOverlay.style.display = "none";
-    }
-
     // Function to fetch and render images
     function fetchAndRenderImages() {
-        showLoadingOverlay(); // Show loading overlay
-        gridContainer.classList.add("loading"); // Hide grid items
-
         fetch('/api/files/imageslist')
             .then(response => {
                 if (!response.ok) {
@@ -37,75 +23,54 @@ document.addEventListener("DOMContentLoaded", function() {
                 gridContainer.innerHTML = ''; // Clear existing images
                 images = data.reverse(); // Reverse the data array to load images from the top
 
-                const imagePromises = images.map((imageName, index) => {
-                    return new Promise((resolve, reject) => {
-                        const img = new Image();
-                        img.onload = function() {
-                            const div = document.createElement("div");
-                            div.classList.add("grid-item");
+                images.forEach((imageName, index) => {
+                    const div = document.createElement("div");
+                    div.classList.add("grid-item");
 
-                            const imgElement = document.createElement("img");
-                            imgElement.src = `/upload/${imageName}?t=${new Date().getTime()}`;
-                            imgElement.alt = imageName;
-                            imgElement.dataset.name = imageName;
-                            imgElement.dataset.index = index;
+                    // Create low-resolution placeholder
+                    const placeholderSrc = `/upload/${imageName}?t=${new Date().getTime()}&lowres=true`; // Assuming your server handles the lowres query param
 
-                            const fullscreenIcon = document.createElement("div");
-                            fullscreenIcon.classList.add("fullscreen-icon");
-                            fullscreenIcon.innerHTML = "&#x26F6;"; // Unicode character for fullscreen icon
+                    const imgElement = document.createElement("img");
+                    imgElement.setAttribute('data-src', `/upload/${imageName}?t=${new Date().getTime()}`);
+                    imgElement.src = placeholderSrc;
+                    imgElement.alt = imageName;
+                    imgElement.dataset.name = imageName;
+                    imgElement.dataset.index = index;
 
-                            imgElement.addEventListener("click", function() {
-                                this.classList.toggle("selected");
-                                const index = selectedImages.indexOf(imageName);
-                                if (imgElement.classList.contains("selected")) {
-                                    if (index === -1) {
-                                        selectedImages.push(imageName);
-                                    }
-                                } else {
-                                    if (index !== -1) {
-                                        selectedImages.splice(index, 1);
-                                    }
-                                }
-                                console.log('Selected images:', selectedImages);
-                            });
+                    const fullscreenIcon = document.createElement("div");
+                    fullscreenIcon.classList.add("fullscreen-icon");
+                    fullscreenIcon.innerHTML = "&#x26F6;"; // Unicode character for fullscreen icon
 
-                            fullscreenIcon.addEventListener("click", function(event) {
-                                event.stopPropagation();
-                                currentImageIndex = index;
-                                openLightbox();
-                            });
-
-                            div.appendChild(imgElement);
-                            div.appendChild(fullscreenIcon);
-                            gridContainer.appendChild(div);
-
-                            resolve();
-                        };
-
-                        img.onerror = function() {
-                            console.error('Error loading image:', imageName);
-                            reject(new Error('Failed to load image'));
-                        };
-
-                        img.src = `/upload/${imageName}?t=${new Date().getTime()}`;
+                    imgElement.addEventListener("click", function() {
+                        this.classList.toggle("selected");
+                        const index = selectedImages.indexOf(imageName);
+                        if (imgElement.classList.contains("selected")) {
+                            if (index === -1) {
+                                selectedImages.push(imageName);
+                            }
+                        } else {
+                            if (index !== -1) {
+                                selectedImages.splice(index, 1);
+                            }
+                        }
+                        console.log('Selected images:', selectedImages);
                     });
+
+                    fullscreenIcon.addEventListener("click", function(event) {
+                        event.stopPropagation();
+                        currentImageIndex = index;
+                        openLightbox();
+                    });
+
+                    div.appendChild(imgElement);
+                    div.appendChild(fullscreenIcon);
+                    gridContainer.appendChild(div);
                 });
 
-                Promise.all(imagePromises)
-                    .then(() => {
-                        hideLoadingOverlay(); // Hide loading overlay after images are loaded
-                        gridContainer.classList.remove("loading"); // Show grid items
-                    })
-                    .catch(error => {
-                        console.error('Error loading images:', error);
-                        hideLoadingOverlay(); // Ensure loading overlay is hidden on error
-                        gridContainer.classList.remove("loading"); // Show grid items
-                    });
+                lazyLoadImages(); // Call the lazy load function after images are added to the DOM
             })
             .catch(error => {
                 console.error('Error fetching image names:', error);
-                hideLoadingOverlay(); // Ensure loading overlay is hidden on error
-                gridContainer.classList.remove("loading"); // Show grid items
             });
     }
 
@@ -187,4 +152,41 @@ document.addEventListener("DOMContentLoaded", function() {
             lightbox.style.display = "none";
         }
     });
+
+    // Lazy load function with individual blur effect
+    function lazyLoadImages() {
+        const lazyImages = [].slice.call(document.querySelectorAll("img[data-src]"));
+
+        if ("IntersectionObserver" in window) {
+            const lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        const lazyImage = entry.target;
+                        const highResSrc = lazyImage.dataset.src;
+                        const lowResSrc = highResSrc.replace('&lowres=true', ''); // Remove lowres query param
+                        const img = new Image();
+                        img.src = highResSrc;
+                        img.onload = function() {
+                            setTimeout(() => { // Add delay to make the blur effect visible
+                                lazyImage.src = highResSrc;
+                                lazyImage.classList.add("loaded");
+                                lazyImage.removeAttribute("data-src");
+                                lazyImageObserver.unobserve(lazyImage);
+                            }, 500); // Adjust delay as needed
+                        };
+                        img.onerror = function() {
+                            console.error('Error loading image:', highResSrc);
+                        };
+                        img.src = lowResSrc; // Initially show low-res placeholder
+                    }
+                });
+            });
+
+            lazyImages.forEach(function(lazyImage) {
+                lazyImageObserver.observe(lazyImage);
+            });
+        } else {
+            console.error("Intersection Observer is not supported.");
+        }
+    }
 });
